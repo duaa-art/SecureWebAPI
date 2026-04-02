@@ -1,0 +1,32 @@
+name: CI Build & Docker
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+     
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+
+      # 3. Restore dependencies
+      - name: Restore dependencies
+        run: dotnet restore
+
+      # 4. Build project
+      - name: Build project
+        run: dotnet build --configuration Release
+
+      # 5. Build Docker image
+      - name: Build Docker image
+        run: docker build -t securewebapi .
