@@ -19,14 +19,23 @@ jobs:
         with:
           dotnet-version: '9.0.x'
 
-      # 3. Restore dependencies
+      # Restore dependencies
       - name: Restore dependencies
         run: dotnet restore
 
-      # 4. Build project
+      # Build project
       - name: Build project
         run: dotnet build --configuration Release
 
-      # 5. Build Docker image
+      # Build Docker image
       - name: Build Docker image
         run: docker build -t securewebapi .
+
+       # Security scan using Trivy
+      - name: Run Trivy scan
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: securewebapi
+          format: table
+          exit-code: 0
+          ignore-unfixed: true
