@@ -1,4 +1,4 @@
-name: CI Build & Docker
+name: CI Build & Secure Docker Pipeline
 
 on:
   push:
@@ -9,29 +9,29 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-     
+      # 1. Checkout repo
       - name: Checkout code
         uses: actions/checkout@v4
 
-      
+      # 2. Setup .NET
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '9.0.x'
 
-      # Restore dependencies
+      # 3. Restore dependencies
       - name: Restore dependencies
         run: dotnet restore
 
-      # Build project
+      # 4. Build project
       - name: Build project
         run: dotnet build --configuration Release
 
-      # Build Docker image
+      # 5. Build Docker image
       - name: Build Docker image
         run: docker build -t securewebapi .
 
-       # Security scan using Trivy
+      # 6. Security scanning (Trivy)
       - name: Run Trivy scan
         uses: aquasecurity/trivy-action@master
         with:
@@ -39,3 +39,10 @@ jobs:
           format: table
           exit-code: 0
           ignore-unfixed: true
+
+      # 7. Run container with secret (test step)
+      - name: Run Docker container
+        run: |
+          docker run -d -p 5000:8080 \
+          -e MY_SECRET=${{ secrets.MY_SECRET }} \
+          --name securewebapi securewebapi
